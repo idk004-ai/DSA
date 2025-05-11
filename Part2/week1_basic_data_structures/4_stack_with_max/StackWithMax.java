@@ -20,20 +20,35 @@ public class StackWithMax {
         }
     }
 
+    class StackElement {
+        int value;
+        int maxValue; 
+        
+        StackElement (int newValue, int newMax) {
+            this.value = newValue;
+            this.maxValue = newMax;
+        }
+    }
+
     public void solve() throws IOException {
         FastScanner scanner = new FastScanner();
         int queries = scanner.nextInt();
-        Stack<Integer> stack = new Stack<Integer>();
+        Stack<StackElement> stack = new Stack<StackElement>();
+
+        int max = Integer.MIN_VALUE;
 
         for (int qi = 0; qi < queries; ++qi) {
             String operation = scanner.next();
             if ("push".equals(operation)) {
                 int value = scanner.nextInt();
-                stack.push(value);
+                max = Math.max(max, value);
+                StackElement newElement = new StackElement(value, max);
+                stack.push(newElement);
             } else if ("pop".equals(operation)) {
                 stack.pop();
             } else if ("max".equals(operation)) {
-                System.out.println(Collections.max(stack));
+                StackElement topElement = stack.peek();
+                System.out.println(topElement.maxValue);
             }
         }
     }

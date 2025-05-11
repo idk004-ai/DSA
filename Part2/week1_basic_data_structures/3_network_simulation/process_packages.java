@@ -30,7 +30,30 @@ class Buffer {
 
     public Response Process(Request request) {
         // write your code here
-        return new Response(false, -1);
+        // Steps:
+        // - Xoa cac packet da xu li xong
+        // - Kiem tra buffer co dang day hay khong
+        // - Tinh start_time
+        // - them packet vao buffer
+
+        // KEY: kiem tra xem packet dau tien da xu li xong chua bang cach: SO SANH PROCESS_TIME voi ARRIVAL_TIME cua request moi (ko can tao global var de count)
+        while (finish_time_.size() > 0 && finish_time_.get(0) <= request.arrival_time) {
+            finish_time_.remove(0);
+        }
+
+        if (finish_time_.size() >= size_) {
+            return new Response(true, -1);
+        }
+
+        int start_time = 0;
+        if (finish_time_.isEmpty()) start_time = request.arrival_time;
+        else start_time = Math.max(request.arrival_time, finish_time_.get(finish_time_.size() - 1));
+
+
+        int finish_time = start_time + request.process_time;
+        finish_time_.add(finish_time);
+
+        return new Response(false, start_time);
     }
 
     private int size_;

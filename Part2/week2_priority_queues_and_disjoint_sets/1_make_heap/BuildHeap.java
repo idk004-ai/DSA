@@ -6,7 +6,7 @@ import java.util.StringTokenizer;
 
 public class BuildHeap {
     private int[] data;
-    private List<Swap> swaps;
+    private final List<Swap> swaps = new ArrayList<>();
 
     private FastScanner in;
     private PrintWriter out;
@@ -19,36 +19,43 @@ public class BuildHeap {
         int n = in.nextInt();
         data = new int[n];
         for (int i = 0; i < n; ++i) {
-          data[i] = in.nextInt();
+            data[i] = in.nextInt();
         }
     }
 
     private void writeResponse() {
         out.println(swaps.size());
         for (Swap swap : swaps) {
-          out.println(swap.index1 + " " + swap.index2);
+            out.println(swap.index1 + " " + swap.index2);
+        }
+    }
+
+    private void siftDown(int i) {
+        int minIndex = i;
+        int left = 2 * i + 1;
+        if (left < data.length && data[left] < data[minIndex]) {
+            minIndex = left;
+        }
+        int right = 2 * i + 2;
+        if (right < data.length && data[right] < data[minIndex]) {
+            minIndex = right;
+        }
+        if (i != minIndex) {
+            Swap swap = new Swap(i, minIndex);
+            swaps.add(swap);
+            int tmp = data[i];
+            data[i] = data[minIndex];
+            data[minIndex] = tmp;
+            siftDown(minIndex);
         }
     }
 
     private void generateSwaps() {
-      swaps = new ArrayList<Swap>();
-      // The following naive implementation just sorts 
-      // the given sequence using selection sort algorithm
-      // and saves the resulting sequence of swaps.
-      // This turns the given array into a heap, 
-      // but in the worst case gives a quadratic number of swaps.
-      //
-      // TODO: replace by a more efficient implementation
-      for (int i = 0; i < data.length; ++i) {
-        for (int j = i + 1; j < data.length; ++j) {
-          if (data[i] > data[j]) {
-            swaps.add(new Swap(i, j));
-            int tmp = data[i];
-            data[i] = data[j];
-            data[j] = tmp;
-          }
+        int lastNodeNonLeaf = (int) (Math.floor(data.length / 2) - 1);
+        for (int i = lastNodeNonLeaf; i >= 0; --i) {
+            siftDown(i);
         }
-      }
+
     }
 
     public void solve() throws IOException {

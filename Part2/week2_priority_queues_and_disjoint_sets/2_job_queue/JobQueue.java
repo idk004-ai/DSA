@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 public class JobQueue {
@@ -10,6 +11,27 @@ public class JobQueue {
 
     private FastScanner in;
     private PrintWriter out;
+
+    static class WorkerInfo implements Comparable<WorkerInfo> {
+        int workerId;
+        long nextFreeTime;
+
+        WorkerInfo(int workerId, long nextFreeTime) {
+            this.workerId = workerId;
+            this.nextFreeTime = nextFreeTime;
+        }
+
+        @Override
+        public int compareTo(WorkerInfo o) {
+            if (this.nextFreeTime < o.nextFreeTime) return -1;
+            if (this.nextFreeTime > o.nextFreeTime) return 1;
+
+            if (this.workerId < o.workerId) return -1;
+            if (this.workerId > o.workerId) return 1;
+
+            return 0;
+        }
+    }
 
     public static void main(String[] args) throws IOException {
         new JobQueue().solve();
@@ -34,17 +56,22 @@ public class JobQueue {
         // TODO: replace this code with a faster algorithm.
         assignedWorker = new int[jobs.length];
         startTime = new long[jobs.length];
-        long[] nextFreeTime = new long[numWorkers];
-        for (int i = 0; i < jobs.length; i++) {
+
+        PriorityQueue<WorkerInfo> workerQueue = new PriorityQueue<>();
+
+        for (int i = 0; i < numWorkers; ++i) {
+            workerQueue.add(new WorkerInfo(i, 0));
+        }
+
+        for (int i = 0; i < jobs.length; ++i) {
             int duration = jobs[i];
-            int bestWorker = 0;
-            for (int j = 0; j < numWorkers; ++j) {
-                if (nextFreeTime[j] < nextFreeTime[bestWorker])
-                    bestWorker = j;
-            }
-            assignedWorker[i] = bestWorker;
-            startTime[i] = nextFreeTime[bestWorker];
-            nextFreeTime[bestWorker] += duration;
+
+            WorkerInfo bestWorker = workerQueue.poll();
+            assignedWorker[i] = bestWorker != null ? bestWorker.workerId : 0;
+            startTime[i] = bestWorker != null ? bestWorker.nextFreeTime : 0;
+
+            bestWorker.nextFreeTime += duration;
+            workerQueue.add(bestWorker);
         }
     }
 

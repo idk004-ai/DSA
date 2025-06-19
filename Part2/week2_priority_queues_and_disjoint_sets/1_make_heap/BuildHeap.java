@@ -33,13 +33,9 @@ public class BuildHeap {
     private void siftDown(int i) {
         int minIndex = i;
         int left = 2 * i + 1;
-        if (left < data.length && data[left] < data[minIndex]) {
-            minIndex = left;
-        }
         int right = 2 * i + 2;
-        if (right < data.length && data[right] < data[minIndex]) {
-            minIndex = right;
-        }
+        if (left < data.length && data[left] < data[minIndex]) minIndex = left;
+        if (right < data.length && data[right] < data[minIndex]) minIndex = right;
         if (i != minIndex) {
             Swap swap = new Swap(i, minIndex);
             swaps.add(swap);

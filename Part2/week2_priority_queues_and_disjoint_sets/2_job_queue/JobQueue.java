@@ -12,25 +12,24 @@ public class JobQueue {
     private FastScanner in;
     private PrintWriter out;
 
-    static class WorkerInfo implements Comparable<WorkerInfo> {
+    static class Worker implements Comparable<Worker> {
         int workerId;
-        long nextFreeTime;
-
-        WorkerInfo(int workerId, long nextFreeTime) {
+        long nextTime;       
+        
+        public Worker(int workerId, long nextTime) {
             this.workerId = workerId;
-            this.nextFreeTime = nextFreeTime;
+            this.nextTime = nextTime;
         }
 
         @Override
-        public int compareTo(WorkerInfo o) {
-            if (this.nextFreeTime < o.nextFreeTime) return -1;
-            if (this.nextFreeTime > o.nextFreeTime) return 1;
+        public int compareTo(JobQueue.Worker o) {
+            if (this.nextTime < o.nextTime) return -1;
+            if (this.nextTime > o.nextTime) return 1;
 
             if (this.workerId < o.workerId) return -1;
             if (this.workerId > o.workerId) return 1;
-
             return 0;
-        }
+        }    
     }
 
     public static void main(String[] args) throws IOException {
@@ -57,21 +56,22 @@ public class JobQueue {
         assignedWorker = new int[jobs.length];
         startTime = new long[jobs.length];
 
-        PriorityQueue<WorkerInfo> workerQueue = new PriorityQueue<>();
+        PriorityQueue<Worker> queueWorker = new PriorityQueue<>();
 
         for (int i = 0; i < numWorkers; ++i) {
-            workerQueue.add(new WorkerInfo(i, 0));
+            Worker w = new Worker(i, 0);
+            queueWorker.add(w);
         }
-
+        
         for (int i = 0; i < jobs.length; ++i) {
             int duration = jobs[i];
 
-            WorkerInfo bestWorker = workerQueue.poll();
-            assignedWorker[i] = bestWorker != null ? bestWorker.workerId : 0;
-            startTime[i] = bestWorker != null ? bestWorker.nextFreeTime : 0;
+            Worker w = queueWorker.poll();
+            assignedWorker[i] = w.workerId;
+            startTime[i] = w.nextTime;
 
-            bestWorker.nextFreeTime += duration;
-            workerQueue.add(bestWorker);
+            w.nextTime += duration;
+            queueWorker.add(w);
         }
     }
 
